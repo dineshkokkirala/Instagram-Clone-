@@ -1,30 +1,159 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Post from "./Post";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
+import Modal from "@material-ui/core/Modal";
+import { makeStyles } from "@material-ui/core/styles";
+import { Button, Input } from "@material-ui/core";
+
+function getModalStyle() {
+  const top = 50;
+  const left = 50;
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    position: "absolute",
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
 
 function App() {
-  const [posts, setPosts] = useState([
-    {
-      username: "Dinesh",
-      caption: "Wow! Suuper",
-      imageUrl: "https://cdn.worldvectorlogo.com/logos/react.svg",
-    },
-    {
-      username: "Dinesh",
-      caption: "Wow! Suuper",
-      imageUrl: "https://cdn.worldvectorlogo.com/logos/react.svg",
-    },
-  ]);
+  const classes = useStyles();
+  const [modalStyle] = useState(getModalStyle);
+  const [posts, setPosts] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [user, setuser] = useState(null);
+  const [openSignin, setOpenSignin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        //user logged in
+        console.log(authUser);
+        setuser(authUser);
+      } else {
+        //user logged out
+        setuser(null);
+      }
+    });
+    return () => {
+      //perform some cleanup actions
+      unsubscribe();
+    };
+  }, [user, username]);
 
   useEffect(() => {
     db.collection("posts").onSnapshot((snapshot) => {
-      setPosts(snapshot.docs.map((doc) => doc.data()));
+      setPosts(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          post: doc.data(),
+        }))
+      );
     });
   }, []);
 
+  const signUp = (event) => {
+    event.preventDefault();
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((authUser) => {
+        return authUser.user.updateProfile({
+          displayName: username,
+        });
+      })
+      .catch((err) => alert(err.message));
+    setOpen(false);
+  };
+
+  const signIn = (event) => {
+    event.preventDefault();
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .catch((error) => alert(error.message));
+
+    setOpenSignin(false);
+  };
+
   return (
     <div className="App">
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <div style={modalStyle} className={classes.paper}>
+          <form className="app__signup">
+            <center>
+              <img
+                className="app_headerImage"
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
+                alt="modal"
+              />
+            </center>
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button onClick={signUp} type="submit">
+              Sign Up
+            </Button>
+          </form>
+        </div>
+      </Modal>
+      <Modal open={openSignin} onClose={() => setOpenSignin(false)}>
+        <div style={modalStyle} className={classes.paper}>
+          <form className="app__signup">
+            <center>
+              <img
+                className="app_headerImage"
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
+                alt="modal"
+              />
+            </center>
+
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button onClick={signIn} type="submit">
+              Login
+            </Button>
+          </form>
+        </div>
+      </Modal>
       <div className="app__header">
         <img
           src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
@@ -32,10 +161,21 @@ function App() {
           className="app_headerImage"
         />
       </div>
+      {user ? (
+        <Button onClick={() => auth.signOut()}>LOGOUT</Button>
+      ) : (
+        <div className="app__loginContainer">
+          <Button onClick={() => setOpenSignin(true)}>Login</Button>
+
+          <Button onClick={() => setOpen(true)}>Sign up</Button>
+        </div>
+      )}
+
       <h1>Instagram Clone</h1>
-      {posts.map((post) => {
+      {posts.map(({ id, post }) => {
         return (
           <Post
+            key={id}
             username={post.username}
             caption={post.caption}
             imageUrl={post.imageUrl}
