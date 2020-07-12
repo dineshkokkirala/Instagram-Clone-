@@ -58,14 +58,16 @@ function App() {
   }, [user, username]);
 
   useEffect(() => {
-    db.collection("posts").onSnapshot((snapshot) => {
-      setPosts(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          post: doc.data(),
-        }))
-      );
-    });
+    db.collection("posts")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setPosts(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            post: doc.data(),
+          }))
+        );
+      });
   }, []);
 
   const signUp = (event) => {
@@ -92,11 +94,6 @@ function App() {
 
   return (
     <div className="App">
-      {user?.displayName ? (
-        <ImageUpload username={user.displayName} />
-      ) : (
-        <h3>You have to login to upload images</h3>
-      )}
       <Modal open={open} onClose={() => setOpen(false)}>
         <div style={modalStyle} className={classes.paper}>
           <form className="app__signup">
@@ -166,28 +163,35 @@ function App() {
           alt="logo"
           className="app_headerImage"
         />
+        {user ? (
+          <Button onClick={() => auth.signOut()}>LOGOUT</Button>
+        ) : (
+          <div className="app__loginContainer">
+            <Button onClick={() => setOpenSignin(true)}>Login</Button>
+
+            <Button onClick={() => setOpen(true)}>Sign up</Button>
+          </div>
+        )}
       </div>
-      {user ? (
-        <Button onClick={() => auth.signOut()}>LOGOUT</Button>
+
+      <div className="app__posts">
+        {posts.map(({ id, post }) => {
+          return (
+            <Post
+              key={id}
+              username={post.username}
+              caption={post.caption}
+              imageUrl={post.imageUrl}
+            />
+          );
+        })}
+      </div>
+
+      {user?.displayName ? (
+        <ImageUpload username={user.displayName} />
       ) : (
-        <div className="app__loginContainer">
-          <Button onClick={() => setOpenSignin(true)}>Login</Button>
-
-          <Button onClick={() => setOpen(true)}>Sign up</Button>
-        </div>
+        <h3>You have to login to upload images</h3>
       )}
-
-      <h1>Instagram Clone</h1>
-      {posts.map(({ id, post }) => {
-        return (
-          <Post
-            key={id}
-            username={post.username}
-            caption={post.caption}
-            imageUrl={post.imageUrl}
-          />
-        );
-      })}
     </div>
   );
 }

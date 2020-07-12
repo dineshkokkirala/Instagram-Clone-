@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Button } from "@material-ui/core";
+import "./ImageUpload.css";
 import { storage, db } from "./firebase";
+import firebase from "firebase";
 
 const ImageUpload = ({ username }) => {
   const [caption, setCaption] = useState("");
@@ -39,7 +41,8 @@ const ImageUpload = ({ username }) => {
           .then((url) => {
             //post image into DB
             db.collection("posts").add({
-              //   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              //   timestamp: firebase.database.ServerValue.TIMESTAMP,
               caption: caption,
               imageUrl: url,
               username: username,
@@ -53,7 +56,7 @@ const ImageUpload = ({ username }) => {
   };
 
   return (
-    <div>
+    <div className="imageupload">
       <progress className="imageupload__progress" value={progress} max="100" />
       <input
         type="text"

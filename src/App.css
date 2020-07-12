@@ -5,12 +5,22 @@
 .app {
   background-color: #fff;
 }
+.app__posts {
+  padding: 20px;
+}
 
 .app__header {
   background-color: #fafafa;
   padding: 20px;
   object-fit: contain;
   border-bottom: 1px solid lightgray;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.app_headerImage {
+  object-fit: contain;
 }
 
 .app__signup {
