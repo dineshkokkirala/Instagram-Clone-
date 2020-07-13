@@ -1,6 +1,7 @@
 import firebase from "firebase";
 
-const firebaseapp = firebase.initializeApp({
+// const firebaseapp =
+firebase.initializeApp({
   apiKey: "AIzaSyCmgKmPDtDz9w6TM0qdhhNwGG_jnLt0g2I",
   authDomain: "intagram-clone-react.firebaseapp.com",
   databaseURL: "https://intagram-clone-react.firebaseio.com",

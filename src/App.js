@@ -4,7 +4,7 @@ import Post from "./Post";
 import { db, auth } from "./firebase";
 import Modal from "@material-ui/core/Modal";
 import { makeStyles } from "@material-ui/core/styles";
-import { Button, Input } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import ImageUpload from "./ImageUpload";
 import InstagramEmbed from "react-instagram-embed";
 
@@ -192,7 +192,7 @@ function App() {
         </div>
         <div className="app__postsright">
           <InstagramEmbed
-            url="https://www.instagram.com/p/B_uf9dmAGPw/"
+            // url="https://www.instagram.com/p/B_uf9dmAGPw/"
             maxWidth={320}
             hideCaption={false}
             containerTagName="div"
