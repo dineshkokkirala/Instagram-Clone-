@@ -14,6 +14,26 @@
   font-weight: normal;
   padding: 20px;
 }
+.post__commentbox {
+  display: flex;
+  margin-top: 10px;
+}
+.post__input {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  border-top: 1px solid lightgray;
+}
+.post__button {
+  flex: 0;
+  border: none;
+  /* border-top: 1px solid lightgray;
+  background-color: transparent; */
+  color: #6082a3;
+}
+.post__comments {
+  padding: 20px;
+}
 
 .post__header {
   display: flex;
